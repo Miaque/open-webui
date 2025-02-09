@@ -26,6 +26,7 @@
 		'tavily',
 		'jina',
 		'bing',
+		'zhipu',
 		'exa'
 	];
 
@@ -300,6 +301,35 @@
 								<SensitiveInput
 									placeholder={$i18n.t('Enter Bing Search V7 Subscription Key')}
 									bind:value={webConfig.search.bing_search_v7_subscription_key}
+								/>
+							</div>
+						{:else if webConfig.search.engine === 'zhipu'}
+							<div>
+								<div class=" self-center text-xs font-medium mb-1">
+									{$i18n.t('Zhipu AI Endpoint')}
+								</div>
+
+								<div class="flex w-full">
+									<div class="flex-1">
+										<input
+											class="w-full rounded-lg py-2 px-4 text-sm bg-gray-50 dark:text-gray-300 dark:bg-gray-850 outline-none"
+											type="text"
+											placeholder={$i18n.t('Enter Zhipu AI Endpoint')}
+											bind:value={webConfig.search.zhipu_url}
+											autocomplete="off"
+										/>
+									</div>
+								</div>
+							</div>
+
+							<div class="mt-2">
+								<div class=" self-center text-xs font-medium mb-1">
+									{$i18n.t('Zhipu AI API Key')}
+								</div>
+
+								<SensitiveInput
+									placeholder={$i18n.t('Enter Zhipu AI API Key')}
+									bind:value={webConfig.search.zhipu_api_key}
 								/>
 							</div>
 						{/if}

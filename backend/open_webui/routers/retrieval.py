@@ -30,6 +30,7 @@ from langchain_core.documents import Document
 
 from open_webui.models.files import FileModel, Files
 from open_webui.models.knowledge import Knowledges
+from open_webui.retrieval.web.zhipu import search_zhipu
 from open_webui.storage.provider import Storage
 
 
@@ -386,6 +387,8 @@ async def get_rag_config(request: Request, user=Depends(get_admin_user)):
                 "tavily_api_key": request.app.state.config.TAVILY_API_KEY,
                 "searchapi_api_key": request.app.state.config.SEARCHAPI_API_KEY,
                 "searchapi_engine": request.app.state.config.SEARCHAPI_ENGINE,
+                "zhipu_api_key": request.app.state.config.ZHIPU_WEB_SEARCH_API_KEY,
+                "zhipu_url": request.app.state.config.ZHIPU_WEB_SEARCH_URL,
                 "jina_api_key": request.app.state.config.JINA_API_KEY,
                 "bing_search_v7_endpoint": request.app.state.config.BING_SEARCH_V7_ENDPOINT,
                 "bing_search_v7_subscription_key": request.app.state.config.BING_SEARCH_V7_SUBSCRIPTION_KEY,
@@ -441,6 +444,8 @@ class WebSearchConfig(BaseModel):
     exa_api_key: Optional[str] = None
     result_count: Optional[int] = None
     concurrent_requests: Optional[int] = None
+    zhipu_url: Optional[str] = None
+    zhipu_api_key: Optional[str] = None
 
 
 class WebConfig(BaseModel):
@@ -552,6 +557,13 @@ async def update_rag_config(
         )
         request.app.state.config.RAG_WEB_SEARCH_CONCURRENT_REQUESTS = (
             form_data.web.search.concurrent_requests
+        )
+
+        request.app.state.config.ZHIPU_WEB_SEARCH_API_KEY = (
+            form_data.web.search.zhipu_api_key
+        )
+        request.app.state.config.ZHIPU_WEB_SEARCH_URL = (
+            form_data.web.search.zhipu_url
         )
 
     return {
@@ -1241,6 +1253,15 @@ def search_web(request: Request, engine: str, query: str) -> list[SearchResult]:
         return search_bing(
             request.app.state.config.BING_SEARCH_V7_SUBSCRIPTION_KEY,
             request.app.state.config.BING_SEARCH_V7_ENDPOINT,
+            str(DEFAULT_LOCALE),
+            query,
+            request.app.state.config.RAG_WEB_SEARCH_RESULT_COUNT,
+            request.app.state.config.RAG_WEB_SEARCH_DOMAIN_FILTER_LIST,
+        )
+    elif engine == "zhipu":
+        return search_zhipu(
+            request.app.state.config.ZHIPU_WEB_SEARCH_URL,
+            request.app.state.config.ZHIPU_WEB_SEARCH_API_KEY,
             str(DEFAULT_LOCALE),
             query,
             request.app.state.config.RAG_WEB_SEARCH_RESULT_COUNT,

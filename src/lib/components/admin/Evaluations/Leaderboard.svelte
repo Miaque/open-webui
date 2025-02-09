@@ -1,5 +1,4 @@
 <script lang="ts">
-	import * as ort from 'onnxruntime-web';
 	import { AutoModel, AutoTokenizer } from '@huggingface/transformers';
 
 	import { onMount, getContext } from 'svelte';

@@ -1752,6 +1752,20 @@ BING_SEARCH_V7_SUBSCRIPTION_KEY = PersistentConfig(
     os.environ.get("BING_SEARCH_V7_SUBSCRIPTION_KEY", ""),
 )
 
+ZHIPU_WEB_SEARCH_URL = PersistentConfig(
+    "ZHIPU_WEB_SEARCH_URL",
+    "rag.web.search.zhipu_web_search_url",
+    os.environ.get(
+        "ZHIPU_WEB_SEARCH_URL", "https://open.bigmodel.cn/api/paas/v4/tools"
+    ),
+)
+
+ZHIPU_WEB_SEARCH_API_KEY = PersistentConfig(
+    "ZHIPU_WEB_SEARCH_API_KEY",
+    "rag.web.search.zhipu_web_search_api_key",
+    os.environ.get("ZHIPU_WEB_SEARCH_API_KEY", ""),
+)
+
 EXA_API_KEY = PersistentConfig(
     "EXA_API_KEY",
     "rag.web.search.exa_api_key",
