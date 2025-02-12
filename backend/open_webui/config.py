@@ -1766,6 +1766,20 @@ ZHIPU_WEB_SEARCH_API_KEY = PersistentConfig(
     os.environ.get("ZHIPU_WEB_SEARCH_API_KEY", ""),
 )
 
+BOCHA_WEB_SEARCH_URL = PersistentConfig(
+    "BOCHA_WEB_SEARCH_URL",
+    "rag.web.search.bocha_web_search_url",
+    os.environ.get(
+        "BOCHA_WEB_SEARCH_URL", "https://api.bochaai.com/v1/web-search"
+    ),
+)
+
+BOCHA_WEB_SEARCH_API_KEY = PersistentConfig(
+    "BOCHA_WEB_SEARCH_API_KEY",
+    "rag.web.search.bocha_web_search_api_key",
+    os.environ.get("BOCHA_WEB_SEARCH_API_KEY", ""),
+)
+
 EXA_API_KEY = PersistentConfig(
     "EXA_API_KEY",
     "rag.web.search.exa_api_key",
