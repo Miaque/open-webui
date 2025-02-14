@@ -30,7 +30,6 @@ from langchain_core.documents import Document
 
 from open_webui.models.files import FileModel, Files
 from open_webui.models.knowledge import Knowledges
-from open_webui.retrieval.web.bocha import search_bocha
 from open_webui.retrieval.web.zhipu import search_zhipu
 from open_webui.storage.provider import Storage
 
@@ -47,6 +46,7 @@ from open_webui.retrieval.web.utils import get_web_loader
 from open_webui.retrieval.web.brave import search_brave
 from open_webui.retrieval.web.kagi import search_kagi
 from open_webui.retrieval.web.mojeek import search_mojeek
+from open_webui.retrieval.web.bocha import search_bocha
 from open_webui.retrieval.web.duckduckgo import search_duckduckgo
 from open_webui.retrieval.web.google_pse import search_google_pse
 from open_webui.retrieval.web.jina_search import search_jina
@@ -381,6 +381,7 @@ async def get_rag_config(request: Request, user=Depends(get_admin_user)):
                 "brave_search_api_key": request.app.state.config.BRAVE_SEARCH_API_KEY,
                 "kagi_search_api_key": request.app.state.config.KAGI_SEARCH_API_KEY,
                 "mojeek_search_api_key": request.app.state.config.MOJEEK_SEARCH_API_KEY,
+                "bocha_search_api_key": request.app.state.config.BOCHA_SEARCH_API_KEY,
                 "serpstack_api_key": request.app.state.config.SERPSTACK_API_KEY,
                 "serpstack_https": request.app.state.config.SERPSTACK_HTTPS,
                 "serper_api_key": request.app.state.config.SERPER_API_KEY,
@@ -390,14 +391,13 @@ async def get_rag_config(request: Request, user=Depends(get_admin_user)):
                 "searchapi_engine": request.app.state.config.SEARCHAPI_ENGINE,
                 "zhipu_api_key": request.app.state.config.ZHIPU_WEB_SEARCH_API_KEY,
                 "zhipu_url": request.app.state.config.ZHIPU_WEB_SEARCH_URL,
-                "bocha_api_key": request.app.state.config.BOCHA_WEB_SEARCH_API_KEY,
-                "bocha_url": request.app.state.config.BOCHA_WEB_SEARCH_URL,
                 "jina_api_key": request.app.state.config.JINA_API_KEY,
                 "bing_search_v7_endpoint": request.app.state.config.BING_SEARCH_V7_ENDPOINT,
                 "bing_search_v7_subscription_key": request.app.state.config.BING_SEARCH_V7_SUBSCRIPTION_KEY,
                 "exa_api_key": request.app.state.config.EXA_API_KEY,
                 "result_count": request.app.state.config.RAG_WEB_SEARCH_RESULT_COUNT,
                 "concurrent_requests": request.app.state.config.RAG_WEB_SEARCH_CONCURRENT_REQUESTS,
+                "domain_filter_list": request.app.state.config.RAG_WEB_SEARCH_DOMAIN_FILTER_LIST,
             },
         },
     }
@@ -434,6 +434,7 @@ class WebSearchConfig(BaseModel):
     brave_search_api_key: Optional[str] = None
     kagi_search_api_key: Optional[str] = None
     mojeek_search_api_key: Optional[str] = None
+    bocha_search_api_key: Optional[str] = None
     serpstack_api_key: Optional[str] = None
     serpstack_https: Optional[bool] = None
     serper_api_key: Optional[str] = None
@@ -449,8 +450,7 @@ class WebSearchConfig(BaseModel):
     concurrent_requests: Optional[int] = None
     zhipu_url: Optional[str] = None
     zhipu_api_key: Optional[str] = None
-    bocha_url: Optional[str] = None
-    bocha_api_key: Optional[str] = None
+    domain_filter_list: Optional[List[str]] = []
 
 
 class WebConfig(BaseModel):
@@ -533,6 +533,9 @@ async def update_rag_config(
         request.app.state.config.MOJEEK_SEARCH_API_KEY = (
             form_data.web.search.mojeek_search_api_key
         )
+        request.app.state.config.BOCHA_SEARCH_API_KEY = (
+            form_data.web.search.bocha_search_api_key
+        )
         request.app.state.config.SERPSTACK_API_KEY = (
             form_data.web.search.serpstack_api_key
         )
@@ -563,19 +566,15 @@ async def update_rag_config(
         request.app.state.config.RAG_WEB_SEARCH_CONCURRENT_REQUESTS = (
             form_data.web.search.concurrent_requests
         )
+        request.app.state.config.RAG_WEB_SEARCH_DOMAIN_FILTER_LIST = (
+            form_data.web.search.domain_filter_list
+        )
 
         request.app.state.config.ZHIPU_WEB_SEARCH_API_KEY = (
             form_data.web.search.zhipu_api_key
         )
         request.app.state.config.ZHIPU_WEB_SEARCH_URL = (
             form_data.web.search.zhipu_url
-        )
-
-        request.app.state.config.BOCHA_WEB_SEARCH_API_KEY = (
-            form_data.web.search.bocha_api_key
-        )
-        request.app.state.config.BOCHA_WEB_SEARCH_URL = (
-            form_data.web.search.bocha_url
         )
 
     return {
@@ -610,6 +609,7 @@ async def update_rag_config(
                 "brave_search_api_key": request.app.state.config.BRAVE_SEARCH_API_KEY,
                 "kagi_search_api_key": request.app.state.config.KAGI_SEARCH_API_KEY,
                 "mojeek_search_api_key": request.app.state.config.MOJEEK_SEARCH_API_KEY,
+                "bocha_search_api_key": request.app.state.config.BOCHA_SEARCH_API_KEY,
                 "serpstack_api_key": request.app.state.config.SERPSTACK_API_KEY,
                 "serpstack_https": request.app.state.config.SERPSTACK_HTTPS,
                 "serper_api_key": request.app.state.config.SERPER_API_KEY,
@@ -623,6 +623,7 @@ async def update_rag_config(
                 "exa_api_key": request.app.state.config.EXA_API_KEY,
                 "result_count": request.app.state.config.RAG_WEB_SEARCH_RESULT_COUNT,
                 "concurrent_requests": request.app.state.config.RAG_WEB_SEARCH_CONCURRENT_REQUESTS,
+                "domain_filter_list": request.app.state.config.RAG_WEB_SEARCH_DOMAIN_FILTER_LIST,
             },
         },
     }
@@ -1131,6 +1132,7 @@ def search_web(request: Request, engine: str, query: str) -> list[SearchResult]:
     - BRAVE_SEARCH_API_KEY
     - KAGI_SEARCH_API_KEY
     - MOJEEK_SEARCH_API_KEY
+    - BOCHA_SEARCH_API_KEY
     - SERPSTACK_API_KEY
     - SERPER_API_KEY
     - SERPLY_API_KEY
@@ -1198,6 +1200,16 @@ def search_web(request: Request, engine: str, query: str) -> list[SearchResult]:
             )
         else:
             raise Exception("No MOJEEK_SEARCH_API_KEY found in environment variables")
+    elif engine == "bocha":
+        if request.app.state.config.BOCHA_SEARCH_API_KEY:
+            return search_bocha(
+                request.app.state.config.BOCHA_SEARCH_API_KEY,
+                query,
+                request.app.state.config.RAG_WEB_SEARCH_RESULT_COUNT,
+                request.app.state.config.RAG_WEB_SEARCH_DOMAIN_FILTER_LIST,
+            )
+        else:
+            raise Exception("No BOCHA_SEARCH_API_KEY found in environment variables")
     elif engine == "serpstack":
         if request.app.state.config.SERPSTACK_API_KEY:
             return search_serpstack(
@@ -1274,15 +1286,6 @@ def search_web(request: Request, engine: str, query: str) -> list[SearchResult]:
         return search_zhipu(
             request.app.state.config.ZHIPU_WEB_SEARCH_URL,
             request.app.state.config.ZHIPU_WEB_SEARCH_API_KEY,
-            str(DEFAULT_LOCALE),
-            query,
-            request.app.state.config.RAG_WEB_SEARCH_RESULT_COUNT,
-            request.app.state.config.RAG_WEB_SEARCH_DOMAIN_FILTER_LIST,
-        )
-    elif engine == "bocha":
-        return search_bocha(
-            request.app.state.config.BOCHA_WEB_SEARCH_URL,
-            request.app.state.config.BOCHA_WEB_SEARCH_API_KEY,
             str(DEFAULT_LOCALE),
             query,
             request.app.state.config.RAG_WEB_SEARCH_RESULT_COUNT,
