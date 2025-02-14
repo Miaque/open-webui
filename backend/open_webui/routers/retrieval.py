@@ -1357,12 +1357,23 @@ def process_web_search(
             ]
 
         urls = [result.link for result in web_results]
-        loader = get_web_loader(
-            urls,
-            verify_ssl=request.app.state.config.ENABLE_RAG_WEB_LOADER_SSL_VERIFICATION,
-            requests_per_second=request.app.state.config.RAG_WEB_SEARCH_CONCURRENT_REQUESTS,
-        )
-        docs = loader.load()
+        # 如果联网搜索引擎是bocha，直接用web_results拼装成docs对象
+        if request.app.state.config.RAG_WEB_SEARCH_ENGINE == "bocha":
+            docs = [
+                Document(
+                    page_content=result.snippet,
+                    metadata={'source': result.link, 'title': result.title}
+                )
+                for result in web_results
+            ]
+        else:
+            loader = get_web_loader(
+                urls,
+                verify_ssl=request.app.state.config.ENABLE_RAG_WEB_LOADER_SSL_VERIFICATION,
+                requests_per_second=request.app.state.config.RAG_WEB_SEARCH_CONCURRENT_REQUESTS,
+            )
+            docs = loader.load()
+
         save_docs_to_vector_db(
             request, docs, collection_name, overwrite=True, user=user
         )

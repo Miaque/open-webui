@@ -294,11 +294,11 @@ export const formatDate = (inputDate) => {
 	const now = dayjs();
 
 	if (date.isToday()) {
-		return `Today at ${date.format('LT')}`;
+		return `今天 ${date.format('LT')}`;
 	} else if (date.isYesterday()) {
-		return `Yesterday at ${date.format('LT')}`;
+		return `昨天 ${date.format('LT')}`;
 	} else {
-		return `${date.format('L')} at ${date.format('LT')}`;
+		return `${date.format('L')} ${date.format('LT')}`;
 	}
 };
 
