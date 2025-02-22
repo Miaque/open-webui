@@ -24,3 +24,5 @@ class SearchResult(BaseModel):
     link: str
     title: Optional[str]
     snippet: Optional[str]
+    icon: Optional[str] = ""
+    media: Optional[str] = ""

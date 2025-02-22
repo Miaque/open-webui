@@ -59,7 +59,11 @@ def search_bocha(
 
     return [
         SearchResult(
-            link=result["url"], title=result.get("name"), snippet=result.get("summary")
+            link=result["url"],
+            title=result.get("name"),
+            snippet=result.get("summary"),
+            icon=result.get("siteIcon"),
+            media=result.get("siteName")
         )
         for result in results.get("webpage", [])[:count]
     ]

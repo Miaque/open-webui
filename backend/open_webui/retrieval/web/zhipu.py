@@ -56,6 +56,8 @@ def search_zhipu(
                             title=r.get("title", ""),
                             link=r.get("link", ""),
                             snippet=r.get("content", ""),
+                            icon=r.get("icon", ""),
+                            media=r.get("media", ""),
                         )
                     )
 
