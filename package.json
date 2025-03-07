@@ -121,5 +121,17 @@
 	"engines": {
 		"node": ">=18.13.0 <=22.x.x",
 		"npm": ">=6.0.0"
+	},
+	"packageManager": "pnpm@10.5.2",
+	"pnpm": {
+		"onlyBuiltDependencies": [
+			"core-js",
+			"cypress",
+			"esbuild",
+			"onnxruntime-node",
+			"protobufjs",
+			"sharp",
+			"svelte-preprocess"
+		]
 	}
 }
